@@ -4,6 +4,7 @@ import com.project.jwtauthentication.JwtAuthentication.model.JwtRequest;
 import com.project.jwtauthentication.JwtAuthentication.model.JwtResponse;
 import com.project.jwtauthentication.JwtAuthentication.model.User;
 import com.project.jwtauthentication.JwtAuthentication.security.JwtHelper;
+import com.project.jwtauthentication.JwtAuthentication.service.AuthService;
 import com.project.jwtauthentication.JwtAuthentication.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,9 +21,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-
     @Autowired
-    private UserDetailsService userDetailsService;
+    private AuthService authService;
     @Autowired
     private AuthenticationManager manager;
     @Autowired
@@ -37,7 +37,7 @@ public class AuthController {
     public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest request) {
         logger.info("User login performed for user : " + request.getEmail());
         this.doAuthenticate(request.getEmail(), request.getPassword());
-        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        UserDetails userDetails = authService.loadUserByUsername(request.getEmail());
         String token = this.helper.generateToken(userDetails);
         JwtResponse response = JwtResponse.builder()
                 .jwtToken(token).userName(userDetails.getUsername()).build();

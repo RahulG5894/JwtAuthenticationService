@@ -1,5 +1,6 @@
 package com.project.jwtauthentication.JwtAuthentication.security;
 
+import com.project.jwtauthentication.JwtAuthentication.service.AuthService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import jakarta.servlet.FilterChain;
@@ -23,12 +24,11 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private Logger logger = LoggerFactory.getLogger(OncePerRequestFilter.class);
+
     @Autowired
     private JwtHelper jwtHelper;
-
-
     @Autowired
-    private UserDetailsService userDetailsService;
+    private AuthService authService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             username = this.jwtHelper.getUsernameFromToken(token);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 //fetch user detail from username
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                UserDetails userDetails = this.authService.loadUserByUsername(username);
                 Boolean validateToken = this.jwtHelper.validateToken(token, userDetails);
                 if (validateToken) {
                     //set the authentication
